@@ -1,0 +1,281 @@
+﻿--// Create UI Elements
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.CoreGui -- Ensures the UI is visible to the player
+
+-- Update the background gradient to white and yellow
+local backgroundGradient = Instance.new("UIGradient")
+backgroundGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), -- White
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 0))    -- Yellow
+}
+
+-- Create a blur frame to act as a background
+local blur = Instance.new("Frame")
+blur.Size = UDim2.new(0, 320, 0, 170) -- 10 studs bigger than the key system frame
+blur.Position = UDim2.new(0.5, -160, 0.5, -85) -- Center the blur frame
+blur.BackgroundTransparency = 0.2 -- Adds a slight blur background
+blur.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Lighter white background
+blur.Parent = screenGui
+backgroundGradient.Parent = blur
+local blurCorner = Instance.new("UICorner")
+blurCorner.CornerRadius = UDim.new(0.15, 0) -- Makes the blur frame curved
+blurCorner.Parent = blur
+
+-- Update the main frame with white and yellow gradient
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 150)
+frame.Position = UDim2.new(0.5, -150, 0.5, -75) -- Center the frame on the screen
+frame.BackgroundTransparency = 0.1 -- Set transparency to 0.1 for a vibrant background
+frame.Parent = blur
+
+local frameGradient = Instance.new("UIGradient")
+frameGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), -- White
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 0))    -- Yellow
+}
+frameGradient.Parent = frame -- Apply gradient to the main frame
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0.15, 0) -- Rounded edges for the main frame
+frameCorner.Parent = frame
+
+-- Create a textbox for key entry
+local textbox = Instance.new("TextBox")
+textbox.Size = UDim2.new(0.9, 0, 0.3, 0)
+textbox.Position = UDim2.new(0.05, 0, 0.2, 0)
+textbox.PlaceholderText = "Enter Key"
+textbox.TextScaled = true
+textbox.TextColor3 = Color3.new(1, 1, 1) -- White text for contrast
+textbox.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White background
+textbox.Parent = frame
+
+local textboxCorner = Instance.new("UICorner")
+textboxCorner.CornerRadius = UDim.new(0.1, 0) -- Rounded edges for the textbox
+textboxCorner.Parent = textbox
+
+-- Update the gradient for Submit Button
+local submitButton = Instance.new("TextButton")
+submitButton.Size = UDim2.new(0.4, 0, 0.2, 0)
+submitButton.Position = UDim2.new(0.05, 0, 0.65, 0)
+submitButton.Text = "Submit Key"
+submitButton.TextScaled = true
+submitButton.TextColor3 = Color3.new(1, 1, 1) -- White text
+
+local submitGradient = Instance.new("UIGradient")
+submitGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), -- White
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 0))    -- Yellow
+}
+submitGradient.Parent = submitButton
+submitButton.Parent = frame
+
+local submitCorner = Instance.new("UICorner")
+submitCorner.CornerRadius = UDim.new(0.2, 0) -- Rounded edges for the submit button
+submitCorner.Parent = submitButton
+
+-- Update the gradient for Get Key Button
+local getKeyButton = Instance.new("TextButton")
+getKeyButton.Size = UDim2.new(0.4, 0, 0.2, 0)
+getKeyButton.Position = UDim2.new(0.55, 0, 0.65, 0)
+getKeyButton.Text = "Get Key"
+getKeyButton.TextScaled = true
+getKeyButton.TextColor3 = Color3.new(1, 1, 1) -- White text
+
+local getKeyGradient = Instance.new("UIGradient")
+getKeyGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), -- White
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 0))    -- Yellow
+}
+getKeyGradient.Parent = getKeyButton
+getKeyButton.Parent = frame
+
+local getKeyCorner = Instance.new("UICorner")
+getKeyCorner.CornerRadius = UDim.new(0.2, 0) -- Rounded edges for the get key button
+getKeyCorner.Parent = getKeyButton
+
+-- Add subtle hover effects for buttons
+local function hoverEffect(button)
+    button.MouseEnter:Connect(function()
+        button:TweenSize(UDim2.new(0.42, 0, 0.22, 0), "Out", "Quad", 0.2, true)
+    end)
+    button.MouseLeave:Connect(function()
+        button:TweenSize(UDim2.new(0.4, 0, 0.2, 0), "Out", "Quad", 0.2, true)
+    end)
+end
+
+hoverEffect(submitButton)
+hoverEffect(getKeyButton)
+
+-- Add animations for the UI elements
+textbox:TweenPosition(UDim2.new(0.05, 0, 0.2, 0), "Out", "Quad", 0.5, true)
+submitButton:TweenPosition(UDim2.new(0.05, 0, 0.65, 0), "Out", "Quad", 0.5, true)
+getKeyButton:TweenPosition(UDim2.new(0.55, 0, 0.65, 0), "Out", "Quad", 0.5, true)
+
+--// Functions
+local validKeys = {"WaverHubKey1083"} -- Example valid keys
+local keySubmitted = false
+
+local function checkKey(key)
+    for _, validKey in ipairs(validKeys) do
+        if key == validKey then
+            return true
+        end
+    end
+    return false
+end
+
+local function displayNotification(title, text, duration)
+    game.StarterGui:SetCore("SendNotification", {
+        Title = title;
+        Text = text;
+        Duration = duration;
+    })
+end
+
+-- Save and load key functions
+local function saveKey(key)
+    writefile("SavedWaverHub.txt", key) -- Save key to a file
+end
+
+local function loadSavedKey()
+    if isfile("SavedWaverHub.txt") then
+        return readfile("SavedWaverHub.txt") -- Return the saved key if it exists
+    end
+    return nil
+end
+
+-- Load previously saved key and check if it is valid
+local savedKey = loadSavedKey()
+if savedKey and checkKey(savedKey) then
+    keySubmitted = true
+    displayNotification("Key System", "Saved key is valid! Access Granted!", 3)
+    screenGui:Destroy()
+    print("Access granted from saved key!")
+    -- Call your script loader function here if needed
+else
+    displayNotification("Key System", "No valid saved key found.", 3)
+end
+
+-- Submit button functionality
+submitButton.MouseButton1Click:Connect(function()
+    local inputKey = textbox.Text
+    if checkKey(inputKey) then
+        saveKey(inputKey) -- Save the valid key
+        displayNotification("Key System", "Correct Key Entered! UI is closing...", 3)
+        task.wait(2)
+        keySubmitted = true
+        screenGui:Destroy() 
+        displayNotification("Key System", "Access Granted!", 3)
+        print("Access granted!")
+
+        -- Load the rest of the script
+        local ids = {
+            189707, --Natural Disaster Survival
+            192800, --Work at a pizza place
+            8888615802, --Rainbow friends chapter 1  
+            13622981808, --Rainbow friends chapter 2
+            815405518, --The floor is lava
+            11474660364 --Natural Disaster Survival With Free Items
+        }
+
+        if game.PlaceId == ids[1] then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/WaverHub/Shehdudiwis/refs/heads/main/AnotherShitNatural%24%7B%24%7B%C3%97%E2%82%ACDisaster10298291"))()
+        elseif game.PlaceId == ids[2] then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/WaverHub/Shehdudiwis/refs/heads/main/RandomShitWorkAtPizzaPlaceNigga"))()
+        elseif game.PlaceId == ids[3] then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/RobloxHackingProject/CHHub/main/games/rainbow%20friends%20chapter%201.lua"))()
+        elseif game.PlaceId == ids[4] then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/RobloxHackingProject/CHHub/main/games/rainbow%20friends%20chapter%202.lua"))()
+        elseif game.PlaceId == ids[5] then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/RobloxHackingProject/CHHub/main/games/The%20floor%20is%20lava.lua"))()
+        elseif game.PlaceId == ids[6] then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/RobloxHackingProject/CHHub/main/games/Natural%20Disaster%20Survival.lua"))()
+        else
+            repeat task.wait() until game:IsLoaded()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/JoshSheesh/Waver9292882/refs/heads/main/Global"))()
+            if Advertisement then
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/JoshSheesh/Waver9292882/refs/heads/main/Sigma%20and%20Skebede%20toileys"))()
+            end
+            local StartTime = tick()
+            local A = loadstring(game:HttpGet("https://raw.githubusercontent.com/JoshSheesh/Waver9292882/refs/heads/main/SigmaSupport"))()
+
+            local ScreenGui = Instance.new("ScreenGui")
+            if syn and syn.protect_gui then
+                syn.protect_gui(ScreenGui)
+                ScreenGui.Parent = CoreGui
+            elseif gethui then
+                ScreenGui.Parent = gethui()
+            else
+                ScreenGui.Parent = CoreGui
+            end
+
+            local ImageLabel = Instance.new("ImageLabel")
+            ImageLabel.Parent = ScreenGui
+            ImageLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+            ImageLabel.BackgroundTransparency = 1
+            ImageLabel.Position = UDim2.new(0.5, -(303 / 2), 0.5, -(263 / 2))
+            ImageLabel.Rotation = 0
+            ImageLabel.Size = UDim2.new(0, 303, 0, 263)
+            ImageLabel.Image = "rbxassetid://117922950166645"
+            ImageLabel.ImageTransparency = 1
+
+            for Index = 1, 50, 2 do
+                ImageLabel.ImageTransparency = ImageLabel.ImageTransparency - 0.1
+                wait()
+            end
+            ScreenGui:Destroy()
+
+            for i, v in next, A do
+                if i == game.GameId or i == game.PlaceId then
+                    loadstring(game:HttpGet(v))()
+                end
+            end
+            --sigmaBalls screen thingy And LetsFuck esp, IY for fly script inspiration, Staylin Save Settings, Ren/Cbb for being nigger, Josh Anticheat bypass
+
+            print("Took ", tick() - StartTime, " To Load <3")
+
+            local function Copy()
+                setclipboard("Made By Single Handling Developer: Josh")
+            end
+            local Gang = Instance.new("BindableFunction")
+
+            function Gang.OnInvoke(v)
+                if v == "Yes" then
+                    Copy()
+                    VG.SendNotification("No", "U are not Sigma!!", "rbxassetid://117922950166645", 15)
+                end
+            end
+
+            StarterGui:SetCore("SendNotification",{ Title = "Waver⛅", Text = "Go to My Discord Server for more Updates", Duration = 5, Callback = Gang, Button1 = "Yes", Button2 ="No" })
+            wait(5)
+            ----------------------------------------------------------------------------------------------
+            local function Copy()
+                setclipboard("https://discord.com/invite/PvZX8BJKbS")
+            end
+            local Gang = Instance.new("BindableFunction")
+
+            function Gang.OnInvoke(v)
+                if v == "Yes" then
+                    Copy()
+                    VG.SendNotification("Official Discord", "Copying of Waver⛅ Discord successful", "rbxassetid://117922950166645", 15)
+                end
+            end
+
+            StarterGui:SetCore("SendNotification",{ Title = "Waver⛅ Discord", Text = "Copy to clipboard?", Duration = 5, Callback = Gang, Button1 = "Yes", Button2 ="No" })
+
+            queue_on_teleport[[loadstring(game:HttpGet("https://github.com/1201for/V.G-Hub/blob/main/Extras/Functions"))()]]
+        end
+    else
+        displayNotification("Key System", "Invalid key entered!", 3)
+        print("Invalid key")
+        textbox.Text = "" -- Clear the textbox if the key is invalid
+    end
+end)
+
+-- When the Get Key button is clicked
+getKeyButton.MouseButton1Click:Connect(function()
+    setclipboard("https://discord.com/invite/PvZX8BJKbS") -- Copies Discord invite to the clipboard
+    displayNotification("Key System", "Discord link has been successfully copied to your clipboard!", 3)
+    print("Discord link copied to clipboard.")
+end)
+
